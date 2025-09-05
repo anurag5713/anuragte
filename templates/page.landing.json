@@ -1,7 +1,228 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "sections": {
     "banner": {
       "type": "custom-banner",
+      "blocks": {
+        "layer-01": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 2,
+            "d_top": 62,
+            "d_width": 12,
+            "m_left": 4,
+            "m_top": 6,
+            "m_width": 31,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 2,
+            "hide_mobile": false
+          }
+        },
+        "layer-02": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 36,
+            "d_top": 44,
+            "d_width": 26,
+            "m_left": 6,
+            "m_top": 26,
+            "m_width": 60,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 5,
+            "hide_mobile": false
+          }
+        },
+        "layer-03": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 62,
+            "d_top": 20,
+            "d_width": 10,
+            "m_left": 68,
+            "m_top": 12,
+            "m_width": 26,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 4,
+            "hide_mobile": false
+          }
+        },
+        "layer-04": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 72,
+            "d_top": 22,
+            "d_width": 10,
+            "m_left": 68,
+            "m_top": 42,
+            "m_width": 26,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 4,
+            "hide_mobile": false
+          }
+        },
+        "layer-05": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 48,
+            "d_top": 18,
+            "d_width": 16,
+            "m_left": 26,
+            "m_top": 10,
+            "m_width": 42,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 3,
+            "hide_mobile": false
+          }
+        },
+        "layer-06": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 46,
+            "d_top": 60,
+            "d_width": 10,
+            "m_left": 72,
+            "m_top": 58,
+            "m_width": 22,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 3,
+            "hide_mobile": false
+          }
+        },
+        "layer-07": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 58,
+            "d_top": 66,
+            "d_width": 18,
+            "m_left": 6,
+            "m_top": 72,
+            "m_width": 56,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 2,
+            "hide_mobile": false
+          }
+        },
+        "layer-08": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 24,
+            "d_top": 52,
+            "d_width": 18,
+            "m_left": 52,
+            "m_top": 70,
+            "m_width": 38,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 3,
+            "hide_mobile": false
+          }
+        },
+        "layer-09": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 30,
+            "d_top": 66,
+            "d_width": 12,
+            "m_left": 58,
+            "m_top": 84,
+            "m_width": 30,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 3,
+            "hide_mobile": false
+          }
+        },
+        "layer-10": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 80,
+            "d_top": 34,
+            "d_width": 14,
+            "m_left": 70,
+            "m_top": 30,
+            "m_width": 24,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 3,
+            "hide_mobile": false
+          }
+        },
+        "layer-11": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 88,
+            "d_top": 46,
+            "d_width": 10,
+            "m_left": 78,
+            "m_top": 46,
+            "m_width": 20,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 2,
+            "hide_mobile": false
+          }
+        },
+        "layer-12": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 90,
+            "d_top": 12,
+            "d_width": 10,
+            "m_left": 80,
+            "m_top": 4,
+            "m_width": 20,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 2,
+            "hide_mobile": false
+          }
+        },
+        "layer-13": {
+          "type": "image_layer",
+          "settings": {
+            "d_left": 88,
+            "d_top": 60,
+            "d_width": 10,
+            "m_left": 80,
+            "m_top": 62,
+            "m_width": 20,
+            "rotate": 0,
+            "opacity": 100,
+            "z_index": 2,
+            "hide_mobile": false
+          }
+        }
+      },
+      "block_order": [
+        "layer-01",
+        "layer-02",
+        "layer-03",
+        "layer-04",
+        "layer-05",
+        "layer-06",
+        "layer-07",
+        "layer-08",
+        "layer-09",
+        "layer-10",
+        "layer-11",
+        "layer-12",
+        "layer-13"
+      ],
       "settings": {
         "eyebrow": "The Gift Guide",
         "heading_line_1": "The Gift",
@@ -10,34 +231,73 @@
         "subheading": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p><p>Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>",
         "cta1_label": "SHOP NOW",
         "cta1_link": "#",
+        "cta2_label": "Learn More",
+        "cta2_link": "",
         "caption": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR",
+        "disclaimer": "",
         "overlay_opacity": 20,
         "align": "left",
         "max_width": 1000,
         "text_color": "#111111",
         "enable_shine": true
-      },
+      }
+    },
+    "grid": {
+      "type": "custom-product-grid",
       "blocks": {
-        "layer-01": { "type": "image_layer", "settings": { "asset": "collage-sunglasses.svg", "alt": "Sunglasses", "d_left": 2,  "d_top": 62, "d_width": 12, "m_left": 4,  "m_top": 6,  "m_width": 32, "z_index": 2 } },
-        "layer-02": { "type": "image_layer", "settings": { "asset": "collage-camera.svg",     "alt": "Camera",     "d_left": 36, "d_top": 44, "d_width": 26, "m_left": 6,  "m_top": 26, "m_width": 60, "z_index": 5 } },
-        "layer-03": { "type": "image_layer", "settings": { "asset": "collage-lens-1.svg",     "alt": "Lens",       "d_left": 62, "d_top": 20, "d_width": 10, "m_left": 68, "m_top": 12, "m_width": 26, "z_index": 4 } },
-        "layer-04": { "type": "image_layer", "settings": { "asset": "collage-lens-2.svg",     "alt": "Lens",       "d_left": 72, "d_top": 22, "d_width": 10, "m_left": 68, "m_top": 42, "m_width": 26, "z_index": 4 } },
-        "layer-05": { "type": "image_layer", "settings": { "asset": "collage-notebook.svg",   "alt": "Notebook",   "d_left": 48, "d_top": 18, "d_width": 16, "m_left": 26, "m_top": 10, "m_width": 42, "z_index": 3 } },
-        "layer-06": { "type": "image_layer", "settings": { "asset": "collage-compass.svg",    "alt": "Compass",    "d_left": 46, "d_top": 60, "d_width": 10, "m_left": 72, "m_top": 58, "m_width": 22, "z_index": 3 } },
-        "layer-07": { "type": "image_layer", "settings": { "asset": "collage-cable.svg",      "alt": "Cable",      "d_left": 58, "d_top": 66, "d_width": 18, "m_left": 6,  "m_top": 72, "m_width": 56, "z_index": 2 } },
-        "layer-08": { "type": "image_layer", "settings": { "asset": "collage-watch.svg",      "alt": "Watch",      "d_left": 24, "d_top": 52, "d_width": 18, "m_left": 52, "m_top": 70, "m_width": 38, "z_index": 3 } },
-        "layer-09": { "type": "image_layer", "settings": { "asset": "collage-bowtie.svg",     "alt": "Bowtie",     "d_left": 30, "d_top": 66, "d_width": 12, "m_left": 58, "m_top": 84, "m_width": 30, "z_index": 3 } },
-        "layer-10": { "type": "image_layer", "settings": { "asset": "collage-passport.svg",   "alt": "Passport",   "d_left": 80, "d_top": 34, "d_width": 14, "m_left": 70, "m_top": 30, "m_width": 24, "z_index": 3 } },
-        "layer-11": { "type": "image_layer", "settings": { "asset": "collage-pencil.svg",     "alt": "Pencil",     "d_left": 88, "d_top": 46, "d_width": 10, "m_left": 78, "m_top": 46, "m_width": 20, "z_index": 2 } },
-        "layer-12": { "type": "image_layer", "settings": { "asset": "collage-cup.svg",        "alt": "Cup",        "d_left": 90, "d_top": 12, "d_width": 10, "m_left": 80, "m_top": 4,  "m_width": 20, "z_index": 2 } },
-        "layer-13": { "type": "image_layer", "settings": { "asset": "collage-earbuds.svg",    "alt": "Earbuds",    "d_left": 88, "d_top": 60, "d_width": 10, "m_left": 80, "m_top": 62, "m_width": 20, "z_index": 2 } }
+        "product_ybpdAP": {
+          "type": "product",
+          "settings": {
+            "product": "black-leather-bag"
+          }
+        },
+        "product_yWMz88": {
+          "type": "product",
+          "settings": {
+            "product": ""
+          }
+        },
+        "product_TLP8eY": {
+          "type": "product",
+          "settings": {
+            "product": ""
+          }
+        },
+        "product_fnXHFa": {
+          "type": "product",
+          "settings": {
+            "product": ""
+          }
+        },
+        "product_NG4nqz": {
+          "type": "product",
+          "settings": {
+            "product": ""
+          }
+        },
+        "product_ah44wC": {
+          "type": "product",
+          "settings": {
+            "product": ""
+          }
+        }
       },
       "block_order": [
-        "layer-01","layer-02","layer-03","layer-04","layer-05","layer-06",
-        "layer-07","layer-08","layer-09","layer-10","layer-11","layer-12","layer-13"
-      ]
-    },
-    "grid": { "type": "custom-product-grid", "settings": {} }
+        "product_ybpdAP",
+        "product_yWMz88",
+        "product_TLP8eY",
+        "product_fnXHFa",
+        "product_NG4nqz",
+        "product_ah44wC"
+      ],
+      "settings": {
+        "auto_add_product": "",
+        "redirect_to_cart": false
+      }
+    }
   },
-  "order": ["banner", "grid"]
+  "order": [
+    "banner",
+    "grid"
+  ]
 }
