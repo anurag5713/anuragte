@@ -1,6 +1,7 @@
 {% comment %}
-  Custom Banner (from scratch) — COLLAGE VERSION
+  Custom Banner (from scratch) — COLLAGE VERSION with ASSET FALLBACKS
   - Text sits on top of a collage of many small images (each image is a block you can position)
+  - Each block can use either an uploaded image (image_picker) OR an asset filename from /assets
   - All red-rectangle texts are editable (eyebrow, 3-part heading, subheading, buttons, caption, disclaimer)
   - Adjustable dark overlay for readability
   - Mobile + desktop positions for each image layer
@@ -9,6 +10,8 @@
 <section id="custom-banner-{{ section.id }}" class="c-banner c-banner--{{ section.settings.align }}"
   style="--content-max: {{ section.settings.max_width }}px; --text: {{ section.settings.text_color }}; --overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
   data-shine="{{ section.settings.enable_shine }}">
+
+  {%- comment -%} Optional single background image behind the collage {%- endcomment -%}
   {% if section.settings.bg_image != blank %}
     <div class="c-banner__bg" style="--bg:url({{ section.settings.bg_image | img_url: 'master' }});"></div>
   {% endif %}
@@ -16,7 +19,14 @@
   {%- comment -%} Collage of many small images — each block is an absolute-positioned layer {%- endcomment -%}
   <div class="c-banner__collage" aria-hidden="true">
     {% for block in section.blocks %}
-      {% if block.type == 'image_layer' and block.settings.img != blank %}
+      {% if block.type == 'image_layer' %}
+        {% assign src = '' %}
+        {% if block.settings.img != blank %}
+          {% assign src = block.settings.img | img_url: 'master' %}
+        {% elsif block.settings.asset != blank %}
+          {% assign src = block.settings.asset | asset_url %}
+        {% endif %}
+        {% if src != '' %}
         <div class="c-layer{% if block.settings.hide_mobile %} is-mobile-hidden{% endif %}"
           style="
             --l: {{ block.settings.d_left }}%;
@@ -28,8 +38,9 @@
             --r: {{ block.settings.rotate }}deg;
             --z: {{ block.settings.z_index }};
             --o: {{ block.settings.opacity | divided_by: 100.0 }};">
-          <img src="{{ block.settings.img | img_url: 'master' }}" alt="" loading="lazy" decoding="async">
+          <img src="{{ src }}" alt="{{ block.settings.alt | escape }}" loading="lazy" decoding="async">
         </div>
+        {% endif %}
       {% endif %}
     {% endfor %}
   </div>
@@ -82,12 +93,12 @@
 
 <style>
   .c-banner{position:relative;overflow:hidden;isolation:isolate;min-height:68vh;display:grid;place-items:center;
-    padding:clamp(20px,4vw,64px);color:var(--text,#ffffff)}
+    padding:clamp(20px,4vw,64px);color:var(--text,#111)}
 
   /* Layers order: bg (-3) → collage (-2) → shade (-1) → text (0) */
   .c-banner__bg{position:absolute;inset:0;background-image:var(--bg);background-size:cover;background-position:center;z-index:-3}
   .c-banner__collage{position:absolute;inset:0;z-index:-2;pointer-events:none}
-  .c-banner__shade{position:absolute;inset:0;background:rgba(0,0,0,var(--overlay,0.35));z-index:-1}
+  .c-banner__shade{position:absolute;inset:0;background:rgba(0,0,0,var(--overlay,0.15));z-index:-1}
 
   .c-layer{position:absolute;left:var(--l);top:var(--t);width:var(--w);transform:rotate(var(--r));z-index:var(--z);opacity:var(--o)}
   .c-layer img{display:block;width:100%;height:auto}
@@ -101,17 +112,17 @@
   .c-banner--left .c-banner__inner{margin-inline:auto 0;text-align:left}
   .c-banner--right .c-banner__inner{margin-inline:0 auto;text-align:right}
 
-  .c-banner__tag{letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin:0 0 .5rem;opacity:.95}
-  .c-banner__title{font-size:clamp(30px,6vw,64px);line-height:1.1;margin:.25rem 0 1rem;font-weight:800;word-break:break-word}
+  .c-banner__tag{letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin:0 0 .5rem;opacity:.9}
+  .c-banner__title{font-size:clamp(30px,6vw,64px);line-height:1.1;margin:.25rem 0 1rem;font-weight:800}
   .c-banner__hl{padding:.05em .25em;border-radius:.35em;box-shadow:inset 0 -0.5em 0 rgba(255,205,0,.45)}
-  .c-banner__subtitle{font-size:clamp(16px,2.2vw,20px);opacity:.98;max-width:80ch;margin:0 0 1.25rem}
+  .c-banner__subtitle{font-size:clamp(16px,2.2vw,20px);opacity:.95;max-width:80ch;margin:0 0 1.25rem}
   .c-banner__cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:inherit;margin-bottom:.75rem}
-  .c-banner__caption{opacity:.95;margin:.25rem 0 0}
-  .c-banner__disc{opacity:.8;font-size:.9rem;margin:.25rem 0 0}
+  .c-banner__caption{opacity:.9;margin:.25rem 0 0}
+  .c-banner__disc{opacity:.75;font-size:.9rem;margin:.25rem 0 0}
 
   .c-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:.9rem 1.25rem;border-radius:999px;
     background:#111;color:#fff;border:2px solid #111;font-weight:700;text-decoration:none;transition:transform .2s ease}
-  .c-btn--outline{background:transparent;color:var(--text,#fff);border-color:currentColor}
+  .c-btn--outline{background:transparent;color:var(--text,#111);border-color:currentColor}
   .c-btn:hover{transform:translateY(-1px)}
 
   .c-btn--shine{overflow:hidden}
@@ -133,26 +144,26 @@
 {
   "name": "Custom Banner",
   "settings": [
-    { "type": "text", "id": "eyebrow", "label": "Eyebrow / Tagline", "default": "NEW ARRIVALS" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow / Tagline", "default": "The Gift Guide" },
 
-    { "type": "text", "id": "heading_line_1", "label": "Heading – Line 1", "default": "Winter" },
-    { "type": "text", "id": "heading_highlight", "label": "Heading – Highlight (middle)", "default": "Season" },
-    { "type": "text", "id": "heading_line_2", "label": "Heading – Line 2", "default": "Essentials" },
+    { "type": "text", "id": "heading_line_1", "label": "Heading – Line 1", "default": "The Gift" },
+    { "type": "text", "id": "heading_highlight", "label": "Heading – Highlight (middle)", "default": "Guide" },
+    { "type": "text", "id": "heading_line_2", "label": "Heading – Line 2", "default": "" },
 
     { "type": "richtext", "id": "subheading", "label": "Subheading (rich text)",
-      "default": "<p>Cozy layers, clean silhouettes and everyday comfort—built for chilly mornings and late-night walks.</p>" },
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p><p>Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>" },
 
-    { "type": "text", "id": "cta1_label", "label": "Primary Button Label", "default": "Shop Now" },
+    { "type": "text", "id": "cta1_label", "label": "Primary Button Label", "default": "SHOP NOW" },
     { "type": "url",  "id": "cta1_link",  "label": "Primary Button Link" },
 
-    { "type": "text", "id": "cta2_label", "label": "Secondary Button Label", "default": "Learn More" },
+    { "type": "text", "id": "cta2_label", "label": "Secondary Button Label", "default": "" },
     { "type": "url",  "id": "cta2_link",  "label": "Secondary Button Link" },
 
-    { "type": "text", "id": "caption", "label": "Small caption under buttons" },
-    { "type": "text", "id": "disclaimer", "label": "Tiny disclaimer" },
+    { "type": "text", "id": "caption", "label": "Small caption under buttons", "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR" },
+    { "type": "text", "id": "disclaimer", "label": "Tiny disclaimer", "default": "" },
 
     { "type": "image_picker", "id": "bg_image", "label": "(Optional) Background image behind collage" },
-    { "type": "range", "id": "overlay_opacity", "label": "Dark overlay opacity", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 35 },
+    { "type": "range", "id": "overlay_opacity", "label": "Dark overlay opacity", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 20 },
 
     { "type": "select", "id": "align", "label": "Content alignment",
       "options": [
@@ -160,11 +171,11 @@
         { "value": "center", "label": "Center" },
         { "value": "right", "label": "Right" }
       ],
-      "default": "center"
+      "default": "left"
     },
 
     { "type": "range", "id": "max_width", "label": "Content max width", "min": 480, "max": 1200, "step": 20, "unit": "px", "default": 1000 },
-    { "type": "color", "id": "text_color", "label": "Text color", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text color", "default": "#111111" },
     { "type": "checkbox", "id": "enable_shine", "label": "Enable button shine animation", "default": true }
   ],
   "blocks": [
@@ -172,7 +183,10 @@
       "type": "image_layer",
       "name": "Image layer",
       "settings": [
-        { "type": "image_picker", "id": "img", "label": "Image" },
+        { "type": "image_picker", "id": "img", "label": "Image (upload to override asset filename)" },
+        { "type": "text", "id": "asset", "label": "Asset filename from /assets (e.g. collage-camera.svg)", "default": "" },
+        { "type": "text", "id": "alt", "label": "Alt text", "default": "" },
+
         { "type": "range", "id": "d_left", "label": "Desktop left (%)", "min": 0, "max": 100, "step": 1, "default": 10 },
         { "type": "range", "id": "d_top", "label": "Desktop top (%)", "min": 0, "max": 100, "step": 1, "default": 10 },
         { "type": "range", "id": "d_width", "label": "Desktop width (%)", "min": 5, "max": 90, "step": 1, "default": 20 },

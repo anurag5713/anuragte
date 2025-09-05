@@ -31,7 +31,7 @@
         {% if p %}
           <button type="button" class="c-card__btn" data-quick-view
             aria-label="Quick view {{ p.title }}"
-            data-product-json='{{ p | json }}'>
+            data-product-json='{{ p | json }}' data-product-handle='{{ p.handle }}' data-product-id='{{ p.id }}'>
             <div class="c-card__media">
               {% if p.featured_image %}
                 <img loading="lazy" src="{{ p.featured_image | img_url: '540x' }}" alt="{{ p.title | escape }}">
