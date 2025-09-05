@@ -291,6 +291,11 @@
       >
     {%- endif -%}
 
+
+
+    {%- comment -%} In layouts/theme.liquid {%- endcomment -%}
+    {{ 'custom-landing.css' | asset_url | stylesheet_tag }}
+
     <script>
       if (Shopify.designMode) {
         document.documentElement.classList.add('shopify-design-mode');
@@ -372,5 +377,9 @@
     {%- if settings.cart_type == 'drawer' -%}
       <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
     {%- endif -%}
+
+
+    {%- comment -%} Place before closing </body> so modal markup exists {%- endcomment -%}
+<script src="{{ 'custom-landing.js' | asset_url }}" defer></script>
   </body>
 </html>

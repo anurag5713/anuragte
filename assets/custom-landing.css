@@ -1,0 +1,6 @@
+/* Global styles for the landing page sections */
+:root{--focus: #111}
+*{box-sizing:border-box}
+button:focus-visible, a:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* Optional: page-specific tweaks can go here */

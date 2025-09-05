@@ -1,0 +1,121 @@
+{% comment %}
+  Custom Product Grid with Quick View Popup (from scratch)
+  - Six blocks, each block lets merchant pick one product
+  - Quick view opens a modal that renders product title, price, description, variants
+  - Add to Cart works via AJAX
+  - Special rule: if selected variant options include 'Black' AND 'Medium' (case-insensitive), auto-add the configured "Soft Winter Jacket"
+  - Vanilla JS only; logic lives in assets/custom-landing.js
+{% endcomment %}
+<section id="custom-grid-{{ section.id }}" class="c-grid"
+  data-section-id="{{ section.id }}"
+  {% if section.settings.auto_add_product %}
+    {% assign bonus = section.settings.auto_add_product %}
+    {%- comment -%} Find first available variant for the auto-add product safely {%- endcomment -%}
+    {% assign bonus_variant = nil %}
+    {% for v in bonus.variants %}
+      {% if v.available and bonus_variant == nil %}
+        {% assign bonus_variant = v %}
+      {% endif %}
+    {% endfor %}
+    {% if bonus_variant == nil %}
+      {% assign bonus_variant = bonus.variants.first %}
+    {% endif %}
+    data-bonus-variant-id="{{ bonus_variant.id }}"
+    data-bonus-product-title="{{ bonus.title | escape }}"
+  {% endif %}
+>
+  <div class="c-grid__inner">
+    {% for block in section.blocks %}
+      {% assign p = block.settings.product %}
+      <div class="c-card" {{ block.shopify_attributes }}>
+        {% if p %}
+          <button type="button" class="c-card__btn" data-quick-view
+            aria-label="Quick view {{ p.title }}"
+            data-product-json='{{ p | json }}'>
+            <div class="c-card__media">
+              {% if p.featured_image %}
+                <img loading="lazy" src="{{ p.featured_image | img_url: '540x' }}" alt="{{ p.title | escape }}">
+              {% endif %}
+            </div>
+            <div class="c-card__meta">
+              <h3 class="c-card__title">{{ p.title }}</h3>
+              <p class="c-card__price">{%- render 'price', product: p -%}</p>
+            </div>
+          </button>
+        {% else %}
+          <div class="c-card c-card--placeholder">
+            <div class="c-card__media c-card__media--ph"></div>
+            <div class="c-card__meta">
+              <h3 class="c-card__title">Pick a product</h3>
+              <p class="c-card__price">—</p>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  {%- comment -%} Quick View Modal Shell (populated by JS) {%- endcomment -%}
+  <dialog class="c-modal" data-quick-modal>
+    <form method="dialog" class="c-modal__backdrop" data-close></form>
+    <div class="c-modal__dialog" role="document">
+      <button class="c-modal__close" data-close aria-label="Close">×</button>
+      <div class="c-modal__content" data-modal-content>
+        <!-- JS injects product content here -->
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<style>
+  .c-grid{padding:clamp(20px,4vw,48px)}
+  .c-grid__inner{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+  @media(max-width:900px){.c-grid__inner{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:640px){.c-grid__inner{grid-template-columns:1fr}}
+
+  .c-card{background:#fff;border:1px solid #e5e5e5;border-radius:16px;overflow:hidden;height:100%}
+  .c-card__btn{display:block;width:100%;text-align:left;background:none;border:0;padding:0;cursor:pointer}
+  .c-card__media{aspect-ratio:1/1;display:grid;place-items:center;background:#fafafa}
+  .c-card__media img{width:100%;height:100%;object-fit:cover}
+  .c-card__meta{padding:12px 14px}
+  .c-card__title{font-weight:700;margin:0 0 6px}
+  .c-card__price{opacity:.85;margin:0}
+
+  /* Modal */
+  .c-modal{border:0;padding:0;background:transparent}
+  .c-modal[open]{display:grid;place-items:center}
+  .c-modal__backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5)}
+  .c-modal__dialog{position:relative;z-index:1;background:#fff;max-width:980px;width:92vw;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+  .c-modal__close{position:absolute;top:10px;right:14px;border:0;background:#000;color:#fff;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer}
+  .c-modal__content{display:grid;grid-template-columns:1fr 1fr}
+  @media(max-width:900px){.c-modal__content{grid-template-columns:1fr}}
+  .c-qv__media{background:#f6f6f6;aspect-ratio:1/1;display:grid;place-items:center}
+  .c-qv__media img{width:100%;height:100%;object-fit:cover}
+  .c-qv__body{padding:18px 18px 24px}
+  .c-qv__title{font-size:clamp(20px,2.4vw,28px);margin:0 0 8px}
+  .c-qv__price{font-weight:700;margin:0 0 12px}
+  .c-qv__desc{opacity:.9;margin:0 0 16px}
+  .c-qv__options{display:grid;gap:10px;margin:12px 0 16px}
+  .c-qv__actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .c-qty{width:84px}
+  .c-btn{display:inline-flex;align-items:center;justify-content:center;padding:.85rem 1.1rem;border-radius:999px;background:#111;color:#fff;border:2px solid #111;font-weight:700;text-decoration:none}
+</style>
+
+{% schema %}
+{
+  "name": "Custom Product Grid",
+  "settings": [
+    {
+      "type": "product",
+      "id": "auto_add_product",
+      "label": "Auto-add product (Soft Winter Jacket)",
+      "info": "Will be added automatically when a Black + Medium variant is added to cart"
+    }
+  ],
+  "blocks": [
+    {"type":"product","name":"Product","settings":[{"type":"product","id":"product","label":"Product"}]}
+  ],
+  "max_blocks": 6,
+  "presets": [{"name":"Custom Product Grid","blocks":[{"type":"product"},{"type":"product"},{"type":"product"},{"type":"product"},{"type":"product"},{"type":"product"}]}]
+}
+{% endschema %}
