@@ -1,22 +1,27 @@
 {% comment %}
-  Custom Banner (from scratch) — COLLAGE VERSION with ASSET FALLBACKS
-  - Text sits on top of a collage of many small images (each image is a block you can position)
-  - Each block can use either an uploaded image (image_picker) OR an asset filename from /assets
-  - All red-rectangle texts are editable (eyebrow, 3-part heading, subheading, buttons, caption, disclaimer)
-  - Adjustable dark overlay for readability
-  - Mobile + desktop positions for each image layer
-  - No Dawn components, no jQuery
+  Custom Banner (from scratch) — Collage + Asset Fallbacks
+  - Text sits over a collage of many small images (each is a block)
+  - Each block can use either an uploaded image OR an asset filename from /assets
+  - All copy is editable; layout/colors via CSS (custom-landing.css)
+  - No inline styles except CSS variables from settings
 {% endcomment %}
-<section id="custom-banner-{{ section.id }}" class="c-banner c-banner--{{ section.settings.align }}"
-  style="--content-max: {{ section.settings.max_width }}px; --text: {{ section.settings.text_color }}; --overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
-  data-shine="{{ section.settings.enable_shine }}">
+<section id="custom-banner-{{ section.id }}"
+  class="c-banner c-banner--{{ section.settings.align }}"
+  style="
+    --content-max: {{ section.settings.max_width }}px;
+    --text: {{ section.settings.text_color }};
+    --overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};
+    {% if section.settings.bg_image != blank %}--bg:url({{ section.settings.bg_image | img_url: 'master' }});{% endif %}
+  "
+  data-shine="{{ section.settings.enable_shine }}"
+>
 
-  {%- comment -%} Optional single background image behind the collage {%- endcomment -%}
+  {%- comment -%} Background image (optional) {%- endcomment -%}
   {% if section.settings.bg_image != blank %}
-    <div class="c-banner__bg" style="--bg:url({{ section.settings.bg_image | img_url: 'master' }});"></div>
+    <div class="c-banner__bg" aria-hidden="true"></div>
   {% endif %}
 
-  {%- comment -%} Collage of many small images — each block is an absolute-positioned layer {%- endcomment -%}
+  {%- comment -%} Collage layers (absolute-positioned) {%- endcomment -%}
   <div class="c-banner__collage" aria-hidden="true">
     {% for block in section.blocks %}
       {% if block.type == 'image_layer' %}
@@ -37,7 +42,8 @@
             --mw: {{ block.settings.m_width }}%;
             --r: {{ block.settings.rotate }}deg;
             --z: {{ block.settings.z_index }};
-            --o: {{ block.settings.opacity | divided_by: 100.0 }};">
+            --o: {{ block.settings.opacity | divided_by: 100.0 }};
+          ">
           <img src="{{ src }}" alt="{{ block.settings.alt | escape }}" loading="lazy" decoding="async">
         </div>
         {% endif %}
@@ -45,7 +51,6 @@
     {% endfor %}
   </div>
 
-  {%- comment -%} Shade overlay sits above bg+collage but below text {%- endcomment -%}
   <div class="c-banner__shade" aria-hidden="true"></div>
 
   <div class="c-banner__inner">
@@ -91,55 +96,6 @@
   </div>
 </section>
 
-<style>
-  .c-banner{position:relative;overflow:hidden;isolation:isolate;min-height:68vh;display:grid;place-items:center;
-    padding:clamp(20px,4vw,64px);color:var(--text,#111)}
-
-  /* Layers order: bg (-3) → collage (-2) → shade (-1) → text (0) */
-  .c-banner__bg{position:absolute;inset:0;background-image:var(--bg);background-size:cover;background-position:center;z-index:-3}
-  .c-banner__collage{position:absolute;inset:0;z-index:-2;pointer-events:none}
-  .c-banner__shade{position:absolute;inset:0;background:rgba(0,0,0,var(--overlay,0.15));z-index:-1}
-
-  .c-layer{position:absolute;left:var(--l);top:var(--t);width:var(--w);transform:rotate(var(--r));z-index:var(--z);opacity:var(--o)}
-  .c-layer img{display:block;width:100%;height:auto}
-  @media (max-width: 640px){
-    .c-layer{left:var(--ml);top:var(--mt);width:var(--mw)}
-    .c-layer.is-mobile-hidden{display:none}
-  }
-
-  .c-banner__inner{max-width:var(--content-max,1000px);width:100%}
-  .c-banner--center .c-banner__inner{margin-inline:auto;text-align:center}
-  .c-banner--left .c-banner__inner{margin-inline:auto 0;text-align:left}
-  .c-banner--right .c-banner__inner{margin-inline:0 auto;text-align:right}
-
-  .c-banner__tag{letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin:0 0 .5rem;opacity:.9}
-  .c-banner__title{font-size:clamp(30px,6vw,64px);line-height:1.1;margin:.25rem 0 1rem;font-weight:800}
-  .c-banner__hl{padding:.05em .25em;border-radius:.35em;box-shadow:inset 0 -0.5em 0 rgba(255,205,0,.45)}
-  .c-banner__subtitle{font-size:clamp(16px,2.2vw,20px);opacity:.95;max-width:80ch;margin:0 0 1.25rem}
-  .c-banner__cta{display:flex;gap:12px;flex-wrap:wrap;justify-content:inherit;margin-bottom:.75rem}
-  .c-banner__caption{opacity:.9;margin:.25rem 0 0}
-  .c-banner__disc{opacity:.75;font-size:.9rem;margin:.25rem 0 0}
-
-  .c-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;padding:.9rem 1.25rem;border-radius:999px;
-    background:#111;color:#fff;border:2px solid #111;font-weight:700;text-decoration:none;transition:transform .2s ease}
-  .c-btn--outline{background:transparent;color:var(--text,#111);border-color:currentColor}
-  .c-btn:hover{transform:translateY(-1px)}
-
-  .c-btn--shine{overflow:hidden}
-  .c-banner[data-shine="false"] .c-btn--shine::after{animation:none}
-  .c-btn--shine::after{content:"";position:absolute;inset:-150% auto -150% -50%;width:40%;transform:rotate(25deg);
-    background:linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.35) 50%, rgba(255,255,255,0) 100%);
-    animation:shine 3.6s linear infinite}
-  @keyframes shine{0%{left:-60%}100%{left:160%}}
-
-  @media (max-width: 640px){
-    .c-banner{min-height:56vh;padding:clamp(16px,5vw,28px)}
-    .c-banner__title{font-size:clamp(26px,8vw,40px)}
-    .c-banner__subtitle{font-size:clamp(14px,4vw,18px)}
-    .c-banner__cta{justify-content:center}
-  }
-</style>
-
 {% schema %}
 {
   "name": "Custom Banner",
@@ -159,7 +115,7 @@
     { "type": "text", "id": "cta2_label", "label": "Secondary Button Label", "default": "" },
     { "type": "url",  "id": "cta2_link",  "label": "Secondary Button Link" },
 
-    { "type": "text", "id": "caption", "label": "Small caption under buttons", "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR" },
+    { "type": "text", "id": "caption", "label": "Caption under buttons", "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR" },
     { "type": "text", "id": "disclaimer", "label": "Tiny disclaimer", "default": "" },
 
     { "type": "image_picker", "id": "bg_image", "label": "(Optional) Background image behind collage" },
@@ -178,6 +134,7 @@
     { "type": "color", "id": "text_color", "label": "Text color", "default": "#111111" },
     { "type": "checkbox", "id": "enable_shine", "label": "Enable button shine animation", "default": true }
   ],
+
   "blocks": [
     {
       "type": "image_layer",
@@ -202,11 +159,8 @@
       ]
     }
   ],
+
   "max_blocks": 24,
-  "presets": [
-    { "name": "Custom Banner", "blocks": [
-      {"type":"image_layer"}, {"type":"image_layer"}, {"type":"image_layer"}
-    ]}
-  ]
+  "presets": [{ "name": "Custom Banner", "blocks": [{ "type": "image_layer" }] }]
 }
 {% endschema %}

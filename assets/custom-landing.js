@@ -1,67 +1,87 @@
-/* Custom Landing JS (vanilla) – Quick View + Add to Cart + auto-add rule + mobile friendly */
+/* Custom Landing (vanilla) – Quick View + Add to Cart + auto-add rule + a11y + redirect toggle */
 (function(){
   const grid = document.querySelector('[id^="custom-grid-"]');
   if(!grid) return;
 
+  // Elements
   const modal = grid.querySelector('[data-quick-modal]');
   const modalContent = grid.querySelector('[data-modal-content]');
 
-  const parseJSON = (s)=>{ try{ return JSON.parse(s); } catch(e){ return null; } };
-  const htmlDecode = (str)=>{ const t=document.createElement('textarea'); t.innerHTML=str||''; return t.value; };
+  // Utils
+  const money = (cents)=>{
+    const val = Number(cents || 0) / 100;
+    const cur = (window.Shopify && Shopify.currency && Shopify.currency.active) ? Shopify.currency.active : 'USD';
+    try { return new Intl.NumberFormat(undefined, {style:'currency', currency:cur}).format(val); }
+    catch { return `$${val.toFixed(2)}`; }
+  };
 
-  async function fetchProduct(handle){
+  const fetchProduct = async (handle)=>{
     try{
-      const res = await fetch(`/products/${encodeURIComponent(handle)}.js`,{headers:{'Accept':'application/json'}});
+      const res = await fetch(`/products/${encodeURIComponent(handle)}.js`, {headers:{'Accept':'application/json'}});
       if(!res.ok) throw new Error('fetch failed');
       return await res.json();
     }catch(e){ return null; }
+  };
+
+  const addToCart = async (variantId, quantity)=>{
+    const r = await fetch('/cart/add.js', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({ id: variantId, quantity })
+    });
+    if(!r.ok){
+      const t = await r.text();
+      try { const j = JSON.parse(t); if(j && j.description) throw new Error(j.description); } catch(_){}
+      throw new Error(t || 'Add to cart failed');
+    }
+    return r.json();
+  };
+
+  const getCart = async ()=> (await fetch('/cart.js')).json();
+
+  // Modal a11y
+  let lastFocus = null;
+  function openModal(){
+    lastFocus = document.activeElement;
+    if(typeof modal.showModal === 'function') modal.showModal();
+    else modal.setAttribute('open','');
+    const closeBtn = modal.querySelector('.c-modal__close');
+    closeBtn && closeBtn.focus();
   }
-
-  // Open modal from any product card (event delegation for performance)
-  grid.addEventListener('click', async (e)=>{
-    const trigger = e.target.closest('[data-quick-view]');
-    const close = e.target.closest('[data-close]');
-    if(close){ modal.close ? modal.close() : modal.removeAttribute('open'); return; }
-    if(!trigger) return;
-
-    const raw = trigger.getAttribute('data-product-json') || '';
-    const embedded = parseJSON(raw) || parseJSON(htmlDecode(raw));
-    const handle = trigger.getAttribute('data-product-handle');
-
-    // Prefer canonical product JSON from /products/handle.js (stable shape for variants/prices)
-    const product = (handle ? await fetchProduct(handle) : null) || embedded;
-    if(!product) return;
-
-    renderQuickView(product);
-    if(typeof modal.showModal === 'function') modal.showModal(); else modal.setAttribute('open','');
+  function closeModal(){
+    if(typeof modal.close === 'function') modal.close();
+    else modal.removeAttribute('open');
+    lastFocus && lastFocus.focus();
+  }
+  modal.addEventListener('click', (e)=>{
+    if(e.target.closest('[data-close]')) closeModal();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && modal.hasAttribute('open')) closeModal();
   });
 
-  function money(cents){
-    const val = Number(cents||0)/100;
-    const currency = (window.Shopify && Shopify.currency && Shopify.currency.active) ? Shopify.currency.active : 'USD';
-    try{ return new Intl.NumberFormat(undefined,{ style:'currency', currency}).format(val); }
-    catch(e){ return `$${val.toFixed(2)}`; }
-  }
+  // Open Quick View (delegated)
+  grid.addEventListener('click', async (e)=>{
+    const trigger = e.target.closest('[data-quick-view]');
+    if(!trigger) return;
+    const handle = trigger.getAttribute('data-product-handle');
+    const product = handle ? await fetchProduct(handle) : null;
+    if(!product) return;
+    renderQuickView(product);
+    openModal();
+  });
 
   function renderQuickView(product){
-    // Build option selectors and variant map (using option1/2/3 to be robust)
-    const optionNames = product.options || []; // e.g., ["Color","Size"]
-    const variants = product.variants || [];
+    const optionNames = product.options || [];
+    const variants    = product.variants || [];
+    const images      = product.images || [];
+    const img         = images[0] || null;
 
-    const variantMap = new Map();
-    variants.forEach(v=>{
-      const parts = [];
-      if(optionNames.length>0) parts.push(v.option1);
-      if(optionNames.length>1) parts.push(v.option2);
-      if(optionNames.length>2) parts.push(v.option3);
-      variantMap.set(parts.join(' / ').toLowerCase(), v);
-    });
+    // Unique values per option index
+    const valuesFor = (idx)=> Array.from(new Set(variants.map(v => v[`option${idx+1}`]).filter(Boolean)));
 
-    const img = (product.images && product.images[0]) ? product.images[0] : null;
-
-    // Build selects from variants (unique values per option index)
     const optionsHTML = optionNames.map((name, idx)=>{
-      const values = Array.from(new Set(variants.map(v=> v[`option${idx+1}`]))).filter(Boolean);
+      const values = valuesFor(idx);
       const id = `opt-${idx}`;
       return `
         <label class="c-label">${name}
@@ -72,15 +92,14 @@
       `;
     }).join('');
 
-    // Pick a sensible default: first available variant (or first variant)
-    const defaultVariant = variants.find(v=> v.available) || variants[0];
+    const defaultVariant = variants.find(v => v.available) || variants[0];
 
     modalContent.innerHTML = `
-      <div class="c-qv__media">${ img ? `<img src="${img}" alt="${product.title||''}">` : '' }</div>
+      <div class="c-qv__media">${ img ? `<img src="${img}" alt="${product.title || ''}">` : '' }</div>
       <div class="c-qv__body">
         <h2 class="c-qv__title">${product.title || ''}</h2>
         <p class="c-qv__price" data-price>${money(defaultVariant?.price || product.price)}</p>
-        ${product.description || product.body_html ? `<div class="c-qv__desc">${product.description || product.body_html}</div>` : ''}
+        ${product.description ? `<div class="c-qv__desc">${product.description}</div>` : ''}
         <div class="c-qv__options">${optionsHTML}</div>
         <div class="c-qv__actions">
           <input type="number" min="1" value="1" class="c-qty" data-qty>
@@ -92,61 +111,60 @@
 
     const selects = [...modalContent.querySelectorAll('[data-opt]')];
     const qtyInput = modalContent.querySelector('[data-qty]');
-    const btnAdd = modalContent.querySelector('[data-add]');
-    const msg = modalContent.querySelector('.c-msg');
-    const priceEl = modalContent.querySelector('[data-price]');
+    const btnAdd   = modalContent.querySelector('[data-add]');
+    const msg      = modalContent.querySelector('.c-msg');
+    const priceEl  = modalContent.querySelector('[data-price]');
 
-    // Initialize selects to the defaultVariant's values
+    // Initialize selects to defaultVariant
     if(defaultVariant){
-      selects.forEach((s, idx)=>{ const v = defaultVariant[`option${idx+1}`]; if(v) s.value = v; });
-      if(priceEl) priceEl.textContent = money(defaultVariant.price);
+      selects.forEach((s, idx)=>{
+        const v = defaultVariant[`option${idx+1}`];
+        if(v) s.value = v;
+      });
+      priceEl && (priceEl.textContent = money(defaultVariant.price));
     }
 
-    function currentKey(){ return selects.map((s,idx)=> s.value).join(' / ').toLowerCase(); }
+    const selectedValues = ()=> selects.map((s)=> s.value);
+    const findVariant = (vals)=> variants.find(v =>
+      optionNames.every((_,i)=> String(vals[i]||'') === String(v[`option${i+1}`]||''))
+    );
 
-    function getSelectedVariant(){
-      return variantMap.get(currentKey()) || variants.find(v=>v.available) || variants[0];
+    function syncVariantFromUI(){
+      const vals = selectedValues();
+      let v = findVariant(vals) || variants.find(v => v.available) || variants[0];
+      if(v){
+        selects.forEach((s, idx)=>{ const vv = v[`option${idx+1}`]; if(vv) s.value = vv; });
+        priceEl && (priceEl.textContent = money(v.price));
+      }
+      return v;
     }
 
-    // Update price when options change
-    selects.forEach(s=> s.addEventListener('change', ()=>{
-      const v = getSelectedVariant();
-      if(priceEl && v) priceEl.textContent = money(v.price);
-    }));
+    selects.forEach(s => s.addEventListener('change', syncVariantFromUI));
 
     btnAdd.addEventListener('click', async ()=>{
-      const v = getSelectedVariant();
-      const qty = Math.max(1, parseInt(qtyInput.value||'1',10));
-      msg.textContent = 'Adding…';
+      const v = syncVariantFromUI();
+      const qty = Math.max(1, parseInt(qtyInput.value || '1', 10));
+      if(!v || !v.id){ msg.textContent = 'No variant available'; return; }
+
+      msg.textContent = 'Adding…'; btnAdd.disabled = true;
       try{
-        if(!v || !v.id) throw new Error('No variant selected');
         await addToCart(v.id, qty);
         await maybeAutoAddBonus(v);
         msg.textContent = 'Added to cart!';
+        const shouldRedirect = grid.getAttribute('data-redirect') === 'true';
+        if(shouldRedirect){ window.location.href = '/cart'; return; }
       }catch(err){
         console.error(err);
         msg.textContent = (err && err.message) ? String(err.message) : 'Error adding to cart';
+      }finally{
+        btnAdd.disabled = false;
       }
     });
   }
 
-  async function addToCart(variantId, quantity){
-    const res = await fetch('/cart/add.js',{
-      method:'POST', headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify({ id: variantId, quantity })
-    });
-    if(!res.ok){
-      const text = await res.text();
-      try{ const j = JSON.parse(text); if(j && j.description) throw new Error(j.description); }catch(_){}
-      throw new Error(text || 'Add to cart failed');
-    }
-    return res.json();
-  }
-
-  async function getCart(){ const r = await fetch('/cart.js'); return r.json(); }
-
   async function maybeAutoAddBonus(selectedVariant){
-    const opts = [selectedVariant?.option1, selectedVariant?.option2, selectedVariant?.option3].map(o=> String(o||'').toLowerCase());
+    const opts = [selectedVariant?.option1, selectedVariant?.option2, selectedVariant?.option3]
+      .map(o => String(o||'').toLowerCase());
     if(!(opts.includes('black') && opts.includes('medium'))) return;
 
     const bonusId = grid.getAttribute('data-bonus-variant-id');

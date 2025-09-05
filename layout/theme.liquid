@@ -381,5 +381,12 @@
 
     {%- comment -%} Place before closing </body> so modal markup exists {%- endcomment -%}
 <script src="{{ 'custom-landing.js' | asset_url }}" defer></script>
+
+
+{% if (template.name == 'page' and template.suffix == 'landing') or template.name == 'index' %}
+  {{ 'custom-landing.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'custom-landing.js' | asset_url }}" defer></script>
+{% endif %}
+
   </body>
 </html>
