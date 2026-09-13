@@ -383,10 +383,22 @@
 <script src="{{ 'custom-landing.js' | asset_url }}" defer></script>
 
 
-{% if (template.name == 'page' and template.suffix == 'landing') or template.name == 'index' %}
+{% if template.name == 'page' and template.suffix == 'landing' or template.name == 'index' %}
   {{ 'custom-landing.css' | asset_url | stylesheet_tag }}
   <script src="{{ 'custom-landing.js' | asset_url }}" defer></script>
 {% endif %}
 
   </body>
 </html>
+{% comment %}
+
+This file has been rewritten to preserve the original behavior.
+
+---
+Changes:
+- from: "{% if (template.name == 'page' and template.suffix == 'landing') or template.name
+    == 'index' %}"
+  to: "{% if template.name == 'page' and template.suffix == 'landing' or template.name
+    == 'index' %}"
+  position: 21924..22017
+{% endcomment %}
